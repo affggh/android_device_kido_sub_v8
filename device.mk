@@ -16,6 +16,8 @@
 
 LOCAL_PATH := device/qihoo/w701
 
+$(call inherit-product, vendor/qihoo/w701/w701-vendor.mk)
+
 # Overlay
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 
