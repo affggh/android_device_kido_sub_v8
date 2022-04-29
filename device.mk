@@ -66,6 +66,15 @@ PRODUCT_COPY_FILES += \
 TARGET_SCREEN_HEIGHT := 240
 TARGET_SCREEN_WIDTH := 240
 
+# Display
+PRODUCT_PACKAGES += \
+    copybit.msm8909 \
+    gralloc.msm8909 \
+    hwcomposer.msm8909 \
+    memtrack.msm8909 \
+    liboverlay \
+    libtinyxml
+
 # Init scripts
 PRODUCT_PACKAGES += \
     fstab.qcom \
