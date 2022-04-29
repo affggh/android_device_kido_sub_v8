@@ -23,6 +23,9 @@ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
+# Kernel headers
+PRODUCT_VENDOR_KERNEL_HEADERS := $(LOCAL_PATH)/kernel-headers
+
 # ANT+
 PRODUCT_PACKAGES += \
     AntHalService \
@@ -30,10 +33,34 @@ PRODUCT_PACKAGES += \
     libantradio
 
 # Audio
+PRODUCT_PACKAGES += \
+    audiod \
+    audio.a2dp.default \
+    audio.primary.msm8909 \
+    audio.r_submix.default \
+    audio.usb.default \
+    libaudio-resampler \
+    libaudioroute \
+    libqcompostprocbundle \
+    libqcomvisualizer \
+    libqcomvoiceprocessing \
+    libtinycompress \
+    libvolumelistener \
+    tinymix
+
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/audio_effects.conf:$(TARGET_COPY_OUT_SYSTEM)/etc/audio_effects.conf \
     $(LOCAL_PATH)/audio/audio_policy.conf:$(TARGET_COPY_OUT_SYSTEM)/etc/audio_policy.conf \
-    $(LOCAL_PATH)/audio/mixer_paths_msm8909_pm8916.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/mixer_paths_msm8909_pm8916.xml
+    $(LOCAL_PATH)/audio/mixer_paths_msm8909_pm8916.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/mixer_paths_msm8909_pm8916.xml \
+    $(LOCAL_PATH)/audio/sound_trigger_mixer_paths.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sound_trigger_mixer_paths.xml \
+    $(LOCAL_PATH)/audio/sound_trigger_platform_info.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sound_trigger_platform_info.xml
+
+PRODUCT_COPY_FILES += \
+    frameworks/av/services/audiopolicy/config/a2dp_audio_policy_configuration.xml:/system/etc/a2dp_audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/audio_policy_volumes.xml:/system/etc/audio_policy_volumes.xml \
+    frameworks/av/services/audiopolicy/config/default_volume_tables.xml:/system/etc/default_volume_tables.xml \
+    frameworks/av/services/audiopolicy/config/r_submix_audio_policy_configuration.xml:/system/etc/r_submix_audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/usb_audio_policy_configuration.xml:/system/etc/usb_audio_policy_configuration.xml
 
 # Boot animation
 TARGET_SCREEN_HEIGHT := 240
