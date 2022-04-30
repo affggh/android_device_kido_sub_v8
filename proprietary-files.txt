@@ -64,10 +64,6 @@ vendor/lib/libmmcamera_common_ar0542_eeprom.so
 # Charger
 bin/vm_bms
 
-# DPM
-bin/dpm
-framework/dpm.jar
-
 # DRM and SEE
 bin/qseecomd
 vendor/lib/libQSEEComAPI.so
