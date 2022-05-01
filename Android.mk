@@ -21,10 +21,18 @@ include $(call all-makefiles-under,$(LOCAL_PATH))
 
 include $(CLEAR_VARS)
 
-# Create a link for the WCNSS config file, which ends up as a writable
-# version in /data/misc/wifi
+# Create a link for kernel headers
+$(shell mkdir -p $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include; \
+    ln -sf $(ANDROID_BUILD_TOP)/device/qihoo/w701/kernel-headers \
+	    $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include)
+
+# Create a link for the WCNSS config files
 $(shell mkdir -p $(TARGET_OUT)/etc/firmware/wlan/prima; \
     ln -sf /data/misc/wifi/WCNSS_qcom_cfg.ini \
-	    $(TARGET_OUT)/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini)
+	    $(TARGET_OUT)/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini; \
+	ln -sf /persist/WCNSS_qcom_wlan_nv.bin \
+	    $(TARGET_OUT)/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin; \
+	ln -sf /persist/WCNSS_wlan_dictionary.dat \
+	    $(TARGET_OUT)/etc/firmware/wlan/prima/WCNSS_wlan_dictionary.dat)
 
 endif
