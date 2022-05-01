@@ -126,6 +126,7 @@ TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/rootdir/etc/fstab.qcom
 BOARD_USES_QCOM_HARDWARE := true
 
 # SELinux
+include device/qcom/sepolicy/sepolicy.mk
 #BOARD_SEPOLICY_DIRS += \
 #    $(LOCAL_PATH)/sepolicy
 
