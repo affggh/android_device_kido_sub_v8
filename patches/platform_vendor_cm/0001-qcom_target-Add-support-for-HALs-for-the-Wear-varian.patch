@@ -1,0 +1,31 @@
+From 56d6dbd166f5cb5eb6b8ee1f2ed198aef6b04b55 Mon Sep 17 00:00:00 2001
+From: Ricky Cheung <rcheung844@gmail.com>
+Date: Sun, 1 May 2022 16:22:00 +0800
+Subject: [PATCH] qcom_target: Add support for HALs for the Wear variant of
+ MSM8909
+
+Change-Id: I72ee477a7cbfa0d8fc00efaeb1373cb43f473b44
+---
+ build/core/qcom_target.mk | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/build/core/qcom_target.mk b/build/core/qcom_target.mk
+index 538f948..62d559f 100644
+--- a/build/core/qcom_target.mk
++++ b/build/core/qcom_target.mk
+@@ -88,7 +88,11 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+     else
+     ifeq ($(call is-board-platform-in-list, $(BR_FAMILY)),true)
+         MSM_VIDC_TARGET_LIST := $(BR_FAMILY)
+-        QCOM_HARDWARE_VARIANT := msm8916
++        ifeq ($(TARGET_BOARD_PLATFORM_LAW_BR), true)
++            QCOM_HARDWARE_VARIANT := msm8909
++        else
++            QCOM_HARDWARE_VARIANT := msm8916
++        endif
+     else
+     ifeq ($(call is-board-platform-in-list, $(UM_FAMILY)),true)
+         MSM_VIDC_TARGET_LIST := $(UM_FAMILY)
+-- 
+2.25.1
+
