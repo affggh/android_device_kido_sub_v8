@@ -196,7 +196,7 @@ ro.sys.fw.bservice_age=2000
 ro.emmc_size=8GB
 
 #DPI change for 8909 wearables
-ro.sf.lcd_density=160
+ro.sf.lcd_density=120
 #Disable sensors
 ro.qti.sdk.sensors.gestures=false
 ro.qti.sensors.scrn_ortn=false
