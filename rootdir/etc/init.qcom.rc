@@ -476,11 +476,6 @@ service config_bt_addr /system/bin/btnvtool -O
     group bluetooth radio
     oneshot
 
-service config_bluetooth /system/bin/sh /system/etc/init.qcom.bt.sh "onboot"
-    class core
-    user root
-    oneshot
-
 service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
     class late_start
     user bluetooth
@@ -490,9 +485,6 @@ service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
 
 on property:bluetooth.hciattach=true
     start hciattach
-
-on property:bluetooth.hciattach=false
-    setprop bluetooth.status off
 
 service bt-dun /system/bin/dun-server /dev/smd7 /dev/rfcomm0
     class late_start

@@ -13,7 +13,6 @@ vendor/lib/libadiertac.so
 vendor/lib/libaudcal.so
 
 # Bluetooth
-bin/btnvtool
 bin/hci_qcomm_init
 vendor/lib/libbtnv.so
 
