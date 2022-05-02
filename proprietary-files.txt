@@ -234,3 +234,6 @@ vendor/lib/libthermalioctl.so
 bin/time_daemon
 vendor/lib/libTimeService.so
 -vendor/lib/libtime_genoff.so
+
+# WLAN
+lib/modules/pronto/pronto_wlan.ko:lib/modules/wlan.ko
