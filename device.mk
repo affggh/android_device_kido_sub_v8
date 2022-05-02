@@ -91,6 +91,7 @@ PRODUCT_PACKAGES += \
     hwcomposer.msm8909 \
     memtrack.msm8909 \
     liboverlay \
+    libjni_livedisplay \
     libtinyxml
 
 # GPS
