@@ -60,6 +60,7 @@ vendor/lib/libchromatix_ar0542_snapshot.so
 
 # Camera sensors
 vendor/lib/libmmcamera_common_ar0542_eeprom.so
+vendor/lib/libmmcamera_ov2685.so
 
 # Charger
 bin/vm_bms
