@@ -2,10 +2,6 @@
 # system.prop for msm8909
 #
 
-#[Qihoo][wangshunying][20170322]Set default timezone/locale for kidwatch
-persist.sys.timezone=Asia/Shanghai
-persist.sys.locale=zh-Hans-CN
-
 #rild.libpath=/system/lib/libreference-ril.so
 rild.libpath=/system/vendor/lib/libril-qc-qmi-1.so
 rild.libargs=-d /dev/smd0
