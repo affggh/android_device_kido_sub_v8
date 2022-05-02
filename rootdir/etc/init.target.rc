@@ -103,7 +103,6 @@ service qseecomd /system/bin/qseecomd
 service perfd /system/vendor/bin/perfd
    class main
    user root
-   disabled
 
 service thermal-engine /system/vendor/bin/thermal-engine
    class main
@@ -131,12 +130,10 @@ on charger
    chmod 0664 /sys/class/power_supply/bms/current_now
    chmod 0664 /sys/class/power_supply/bms/voltage_ocv
    start vm_bms
-   load_all_props
    start qcom-post-boot
 
 on boot
     start rmt_storage
-    insmod /system/lib/modules/adsprpc.ko
 
     # Allow powerHAL to write to sysfs
     chown system system /sys/bus/i2c/devices/5-0046/enable_wakeup
@@ -159,75 +156,14 @@ service per_mgr /system/bin/pm-service
     user system
     group system net_raw
 
-service perffeedbackd /system/vendor/bin/perffeedbackd
-   class main
-   user system
-   group system
-   disabled
-
 on property:init.svc.surfaceflinger=stopped
     stop ppd
 
 on property:init.svc.surfaceflinger=running
     start ppd
 
-service imsstarter /system/bin/sh /system/etc/init.qti.ims.sh
-    class main
-    oneshot
-
-on property:vold.decrypt=trigger_restart_framework
-    start imsstarter
-
-service imsqmidaemon /system/bin/imsqmidaemon
-    class main
-    user system
-    socket ims_qmid stream 0660 system radio
-    group radio log qcom_diag
-    disabled
-
-on property:service.qti.ims.enabled=1
-    start imsqmidaemon
-
-service imsdatadaemon /system/bin/imsdatadaemon
-    class main
-    user system
-    socket ims_datad stream 0660 system radio
-    group system wifi radio inet log qcom_diag
-    disabled
-
-on property:sys.ims.QMI_DAEMON_STATUS=1
-    start imsdatadaemon
-
-service ims_rtp_daemon /system/bin/ims_rtp_daemon
-   class main
-   user system
-   socket ims_rtpd stream 0660 system radio
-   group radio diag qcom_diag log
-   disabled
-
-service imscmservice /system/bin/imscmservice
-   class main
-   user system
-   group radio diag qcom_diag log
-   disabled
-
-on property:sys.ims.DATA_DAEMON_STATUS=1
-    start ims_rtp_daemon
-    start imscmservice
-
-service touch /system/bin/sh /system/etc/init.qti.synaptics_dsx_qhd.sh
-   class late_start
-   user root
-   group root
-   oneshot
-   disabled
 service dts_configurator /system/bin/dts_configurator
    class main
    user system
    group system
    oneshot
-on property:persist.sys.synaptics_dsx.qhd=true
-   start touch
-
-on property:persist.sys.synaptics_dsx.qhd=false
-   stop touch
