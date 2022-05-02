@@ -75,6 +75,10 @@ PRODUCT_COPY_FILES += \
 TARGET_SCREEN_HEIGHT := 240
 TARGET_SCREEN_WIDTH := 240
 
+# Camera
+PRODUCT_PACKAGES += \
+   Snap
+
 # Display
 PRODUCT_PACKAGES += \
     copybit.msm8909 \
