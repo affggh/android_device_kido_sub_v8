@@ -16,6 +16,7 @@
 
 LOCAL_PATH := device/qihoo/w701
 
+$(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
 $(call inherit-product, vendor/qihoo/w701/w701-vendor.mk)
 
 # Overlay
