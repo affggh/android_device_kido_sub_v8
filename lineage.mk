@@ -17,7 +17,7 @@
 $(call inherit-product, device/qihoo/w701/full_w701.mk)
 
 # Inherit some common Lineage stuff.
-$(call inherit-product, vendor/cm/config/common_full_phone.mk)
+$(call inherit-product, vendor/cm/config/common_mini_phone.mk)
 
 PRODUCT_NAME := lineage_w701
 BOARD_VENDOR := qcom
