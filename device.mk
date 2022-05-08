@@ -113,7 +113,8 @@ PRODUCT_PACKAGES += \
     fstab.qcom \
     init.qcom.bt.sh \
     init.qcom.rc \
-    init.qcom.sh \
+    init.qcom.power.rc \
+    init.qcom.ssr.rc \
     init.qcom.usb.rc \
     init.target.rc \
     ueventd.qcom.rc

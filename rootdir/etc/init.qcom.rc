@@ -25,6 +25,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import init.qcom.power.rc
 import init.qcom.usb.rc
 import init.target.rc
 
@@ -50,6 +51,8 @@ on init
     # Support legacy paths
     symlink /sdcard /mnt/sdcard
     symlink /sdcard /storage/sdcard0
+
+    write /proc/sys/vm/page-cluster 0
 
 on early-boot
     # set RLIMIT_MEMLOCK to 64MB
@@ -188,15 +191,32 @@ on boot
     #Allow system apps to read/write on USB PC mode
     chown system system /sys/kernel/watch_gpios/smartwearable_usb_pcmode
 
-    #Touch firmware check and upgrade
-    write /sys/bus/i2c/devices/5-0046/upgrade 2
-
     # Sensors
     chmod 0775 /persist/sensors
     chmod 0664 /persist/sensors/sensors_settings
     chown system root /persist/sensors/sensors_settings
 
     mkdir /data/misc/sensors 0775 system root
+
+    # File flags for prebuilt ril db file
+    write /data/misc/radio/prebuilt_db_support 1
+    chown radio radio /data/misc/radio/prebuilt_db_support
+    chmod 0400 /data/misc/radio/prebuilt_db_support
+    write /data/misc/radio/db_check_done 0
+    chown radio radio /data/misc/radio/db_check_done
+    chmod 0660 /data/misc/radio/db_check_done
+
+    # Copy prebuilt qcril.db files
+    copy /vendor/qcril.db /data/misc/radio/qcril.db
+    chown radio radio /data/misc/radio/qcril.db
+    write /data/misc/radio/db_check_done 1
+
+    # Make modem config folder and copy firmware config to that folder for RIL
+    rm /data/misc/radio/modem_config
+    mkdir /data/misc/radio/modem_config 0770 radio radio
+    copy /firmware/image/modem_pr/mbn_ota/* /data/misc/radio/modem_config
+    chown radio radio /data/misc/radio/modem_config
+    write /data/misc/radio/copy_complete 1
 
 # msm specific files that need to be created on /data
 on post-fs-data
@@ -298,7 +318,6 @@ on post-fs-data
     chmod 2770 /data/system/perfd
     mkdir /persist/drm 0770 system system
     rm /data/system/perfd/default_values
-    start perfd
 
     # NFC local data and nfcee xml storage
     mkdir /data/nfc 0770 nfc nfc
@@ -343,11 +362,6 @@ service perfd /system/vendor/bin/perfd
     user root
     disabled
     socket perfd seqpacket 0666 root system
-
-service qcomsysd /system/bin/qcom-system-daemon
-    class main
-    user root
-    group root qcom_diag
 
 service ssr_setup /system/bin/ssr_setup
     oneshot
@@ -438,14 +452,6 @@ on property:vold.decrypt=trigger_restart_framework
 on property:persist.env.fastdorm.enabled=true
     setprop persist.radio.data_no_toggle 1
 
-service cnd /system/bin/cnd
-    class late_start
-    socket cnd stream 660 root inet
-
-service dpmd /system/bin/dpmd
-    class late_start
-    socket dpmd stream 660 root system
-
 service irsc_util /system/bin/irsc_util "/etc/sec_config"
     class main
     user root
@@ -455,16 +461,7 @@ service rmt_storage /system/bin/rmt_storage
     class core
     user root
     group system wakelock
-    disabled
-
-service rfs_access /system/bin/rfs_access
-   class core
-   user root
-   group system net_raw
-
-service tftp_server /system/bin/tftp_server
-   class main
-   user root
+    writepid /dev/cpuset/system-background/tasks
 
 on property:wc_transport.start_hci=true
     start start_hci_filter
@@ -532,22 +529,26 @@ service bridgemgrd /system/bin/bridgemgrd
 service qmuxd /system/bin/qmuxd
     class main
     user root
-    group radio audio bluetooth gps nfc qcom_diag
+    group radio audio bluetooth gps nfc qcom_diag wakelock
+    writepid /dev/cpuset/system-background/tasks
 
 service netmgrd /system/bin/netmgrd
     class main
     user root
     group root wifi wakelock radio inet
+    writepid /dev/cpuset/system-background/tasks
 
 service qti /system/vendor/bin/qti
     class main
     user radio
-    group radio net_raw qcom_diag usb net_admin
+    group radio net_raw qcom_diag usb net_admin wakelock
+    writepid /dev/cpuset/system-background/tasks
 
 service sensors /system/bin/sensors.qcom
     class late_start
     user root
     group root
+    writepid /dev/cpuset/system-background/tasks
 
 on property:ro.use_data_netmgrd=false
     # netmgr not supported on specific target
@@ -616,11 +617,6 @@ on property:drmdiag.load=1
 on property:drmdiag.load=0
     stop drmdiag
 
-service qcom-sh /system/bin/sh /init.qcom.sh
-    class late_start
-    user root
-    oneshot
-
 on property:sys.boot_completed=1
     start atfwd
 
@@ -666,6 +662,7 @@ service charger /charger
     seclabel u:r:healthd:s0
 
 service vm_bms /system/bin/vm_bms
+    class main
     user root
     group root wakelock
 
@@ -700,3 +697,7 @@ on property:hw.boost_cpu=1
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1094400
     write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1094400
     write /sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq 1094400
+
+on property:sys.boot_completed=1
+    # Enable ZRAM on boot_complete
+    swapon_all fstab.qcom
