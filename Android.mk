@@ -16,14 +16,14 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifneq ($(filter w701, $(TARGET_DEVICE)),)
+ifneq ($(filter sub_v8, $(TARGET_DEVICE)),)
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
 include $(CLEAR_VARS)
 
 # Create a link for kernel headers
 $(shell mkdir -p $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include; \
-    ln -sf $(ANDROID_BUILD_TOP)/device/qihoo/w701/kernel-headers \
+    ln -sf $(ANDROID_BUILD_TOP)/device/kido/sub_v8/kernel-headers \
 	    $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include)
 
 CMN_IMAGES := \

@@ -18,8 +18,8 @@
 
 set -e
 
-DEVICE=w701
-VENDOR=qihoo
+DEVICE=sub_v8
+VENDOR=kido
 
 # Load extract_utils and do some sanity checks
 MY_DIR="${BASH_SOURCE%/*}"

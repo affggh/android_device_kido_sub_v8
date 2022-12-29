@@ -18,8 +18,8 @@
 
 set -e
 
-DEVICE=w701
-VENDOR=qihoo
+DEVICE=sub_v8
+VENDOR=kido
 
 INITIAL_COPYRIGHT_YEAR=2022
 

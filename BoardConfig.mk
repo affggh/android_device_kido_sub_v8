@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-LOCAL_PATH := device/qihoo/w701
+LOCAL_PATH := device/kido/sub_v8
 
 # Platform
 TARGET_BOARD_PLATFORM := msm8909
@@ -67,8 +67,8 @@ TARGET_CONTINUOUS_SPLASH_ENABLED := true
 TARGET_FORCE_HWC_FOR_VIRTUAL_DISPLAYS := true
 TARGET_USES_ION := true
 TARGET_USES_NEW_ION_API := true
-TARGET_USES_16BPPSURFACE_FOR_OPAQUE := true
-GET_FRAMEBUFFER_FORMAT_FROM_HWC := true
+#TARGET_USES_16BPPSURFACE_FOR_OPAQUE := true
+#GET_FRAMEBUFFER_FORMAT_FROM_HWC := true
 USE_OPENGL_RENDERER := true
 
 # Encryption
@@ -109,7 +109,7 @@ TARGET_RECOVERY_DEVICE_MODULES := libinit_msm8909
 
 # Kernel
 BOARD_KERNEL_BASE := 0x80000000
-BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci lpm_levels.sleep_disabled=1
+BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci lpm_levels.sleep_disabled=1 androidboot.selinux=permissive
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_IMAGE_NAME := zImage-dtb
 BOARD_KERNEL_TAGS_OFFSET := 0x00000100
@@ -155,12 +155,14 @@ BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_qcwcn
 BOARD_WLAN_DEVICE := qcwcn
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_qcwcn
-WIFI_DRIVER_MODULE_NAME := "wlan"
+
+PRODUCT_VENDOR_MOVE_ENABLED := true
+TARGET_DISABLE_WCNSS_CONFIG_COPY := true
 TARGET_USES_QCOM_WCNSS_QMI := true
-WIFI_DRIVER_MODULE_PATH := "/system/lib/modules/wlan.ko"
+
 WIFI_DRIVER_FW_PATH_AP := "ap"
 WIFI_DRIVER_FW_PATH_STA := "sta"
 WPA_SUPPLICANT_VERSION := VER_0_8_X
 
 # Inherit from the proprietary version
-include vendor/qihoo/w701/BoardConfigVendor.mk
+include vendor/kido/sub_v8/BoardConfigVendor.mk

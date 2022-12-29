@@ -199,7 +199,7 @@ etc/permissions/telephonyservice.xml
 -framework/qcrilhook.jar
 framework/qti-telephony-common.jar
 framework/QtiTelephonyServicelibrary.jar
-lib/librilqmiservices.so
+#lib/librilqmiservices.so
 -priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk
 vendor/bin/qti
 vendor/lib/libconfigdb.so
@@ -225,7 +225,7 @@ vendor/lib/libsensor1.so
 vendor/lib/libsensor_reg.so
 
 # Thermal
-etc/thermal-engine.conf
+# etc/thermal-engine.conf
 vendor/bin/thermal-engine
 -vendor/lib/libthermalclient.so
 vendor/lib/libthermalioctl.so
@@ -237,4 +237,5 @@ vendor/lib/libTimeService.so
 -vendor/lib/libtime_genoff.so
 
 # WLAN
-lib/modules/pronto/pronto_wlan.ko:lib/modules/wlan.ko
+#lib/modules/pronto/pronto_wlan.ko:lib/modules/wlan.ko
+etc/wifi/WCNSS_qcom_wlan_nv.bin

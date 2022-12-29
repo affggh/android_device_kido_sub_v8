@@ -28,6 +28,7 @@
 import init.qcom.power.rc
 import init.qcom.usb.rc
 import init.target.rc
+import init.qcom.factory.rc
 
 on early-init
     mount debugfs debugfs /sys/kernel/debug
@@ -111,6 +112,36 @@ on boot
     mkdir /dev/socket/netmgr 0750 radio radio
 
     setprop wifi.interface wlan0
+
+    #change broadcom 4774 patch authority
+    chmod 777 /system/etc/firmware/SensorHub.patch
+    chmod 777 /dev/ttyHS1
+    chmod 0666 /dev/mcu_state
+
+    #change virtual uart tty authority
+    chmod 0666 /dev/ttyUART1
+    chmod 0666 /dev/ttyUART2
+    chmod 0666 /dev/ttyUART3
+    chmod 0666 /dev/ttyUART4
+    chmod 0666 /dev/ttyUART5
+    chmod 0666 /dev/ttyUART6
+    chmod 0666 /dev/ttyUART7
+    chmod 0666 /dev/ttyUART8
+    chmod 0666 /dev/ttyUART9
+    chmod 0666 /dev/ttyUART10
+    chmod 0666 /dev/ttyUART11
+    chmod 0666 /dev/ttyUART12
+    chmod 0666 /dev/ttyUART13
+    chmod 0666 /dev/ttyUART14
+    chmod 0666 /dev/ttyUART15
+    chmod 0666 /dev/ttyUART16
+    chmod 0666 /dev/ttyUART17
+    chmod 0666 /dev/ttyUART18
+    chmod 0666 /dev/ttyUART19
+    chmod 0666 /dev/ttyUART20
+    chmod 0666 /dev/ttyUART21
+    chmod 0666 /dev/ttyUART22
+    chmod 0666 /dev/ttyUART23
 
 #   Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
@@ -472,7 +503,7 @@ on property:wc_transport.start_hci=false
 service start_hci_filter /system/bin/wcnss_filter
     class late_start
     user root
-    group system wakelock
+    group bluetooth qcom_diag
     disabled
 
 service config_bt_addr /system/bin/btnvtool -O
@@ -589,6 +620,30 @@ service wpa_supplicant /system/bin/wpa_supplicant \
     disabled
     oneshot
 
+service wifi_ftmd /system/bin/wifi_ftmd
+    user system
+    group system inet net_admin
+    socket wififtmd_server dgram 0660 system system
+    disabled
+    oneshot
+
+on property:wifi.ftmd.load=true
+    insmod /system/lib/modules/wlan.ko con_mode=5
+
+on property:wifi.ftmd.load.build.in=true
+    write /dev/wcnss_build_in 5
+
+on property:wifi.ftmd.load.build.in=false
+    write /dev/wcnss_build_in 0
+
+service cnss_diag /system/bin/cnss_diag --q
+    class main
+    user root
+    group root
+    oneshot
+
+service cnss-daemon /system/bin/cnss-daemon -n -l
+    class late_start
 service loc_launcher /system/bin/loc_launcher
     #loc_launcher will start as root and set its uid to gps
     class late_start
@@ -701,3 +756,13 @@ on property:hw.boost_cpu=1
 on property:sys.boot_completed=1
     # Enable ZRAM on boot_complete
     swapon_all fstab.qcom
+service download_4774fw /system/bin/download_4774fw
+    class core
+    user root
+    group root
+
+#add diag_manufactory service
+service diag_manufactory /system/bin/diag_manufactory
+    class main
+    user root
+    group root

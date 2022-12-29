@@ -14,14 +14,21 @@
 # limitations under the License.
 #
 
-$(call inherit-product, device/qihoo/w701/full_w701.mk)
+$(call inherit-product, device/kido/sub_v8/full_sub_v8.mk)
 
 # Inherit some common Lineage stuff.
 $(call inherit-product, vendor/cm/config/common_mini_phone.mk)
 
-PRODUCT_NAME := lineage_w701
+PRODUCT_NAME := lineage_sub_v8
 BOARD_VENDOR := qcom
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BUILD_FINGERPRINT="qcom/w701/w701:7.1.1/273065/273065:user/release-keys" \
-    PRIVATE_BUILD_DESC="w701-user 7.1.1 273065 273065 release-keys"
+    BUILD_FINGERPRINT="kido/sub_v8/sub_v8:7.1.1/V8XXCN00X1000DPX1812140/buildf12141528:user/test-keys" \
+    PRIVATE_BUILD_DESC="sub_v8-user 7.1.1 V8XXCN00X1000DPX1812140 eng.buildf.20181214.152838 test-keys"
+
+# Default open adb
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.usb.config=mtp,adb \
+    ro.adb.secure=0 \
+    ro.secure=0 \
+    ro.debuggable=1

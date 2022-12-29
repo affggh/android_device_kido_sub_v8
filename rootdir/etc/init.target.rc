@@ -28,16 +28,37 @@
 #
 
 import init.carrier.rc
+import init.zeusis.rc
+import init.zeusis.common.rc
 
 on early-init
     mkdir /firmware 0771 system system
     mkdir /system 0777 root root
     symlink /data/tombstones /tombstones
+    write /sys/kernel/mm/ksm/pages_to_scan 100
+    write /sys/kernel/mm/ksm/sleep_millisecs 500
+    write /sys/kernel/mm/ksm/deferred_timer 1
+    write /sys/kernel/mm/ksm/run 1
 
 on fs
     wait /dev/block/bootdevice
     mount_all fstab.qcom
+
+    # Keeping following partitions outside fstab file. As user may not have
+    # these partition flashed on the device. Failure to mount any partition in fstab file
+    # results in failure to launch late-start class.
+
+    wait /dev/block/bootdevice/by-name/cache
+    mount ext4 /dev/block/bootdevice/by-name/cache /cache nosuid nodev barrier=1
+
+    wait /dev/block/bootdevice/by-name/persist
+    mount ext4 /dev/block/bootdevice/by-name/persist /persist nosuid nodev barrier=1
     mkdir /persist/data 0700 system system
+    restorecon_recursive /persist
+
+    wait /dev/block/bootdevice/by-name/modem
+    mount vfat /dev/block/bootdevice/by-name/modem /firmware ro context=u:object_r:firmware_file:s0,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
+    #write /sys/kernel/boot_adsp/boot 1
 
 on post-fs-data
     mkdir /data/tombstones 0771 system system
@@ -54,7 +75,6 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
     user camera
     group camera system inet input graphics
-    writepid /dev/cpuset/camera-daemon/tasks
 
 on init
    write /sys/module/qpnp_rtc/parameters/poweron_alarm 1
@@ -66,16 +86,30 @@ on property:persist.usb.chgdisabled=1
 on property:persist.usb.chgdisabled=0
     write /sys/class/power_supply/battery/charging_enabled 1
 
+service qrngd /system/bin/qrngd -f
+   class main
+   user root
+   group root
+
+service qrngp /system/bin/qrngp -f
+   class main
+   user root
+   group root
+   oneshot
+   disabled
+
+on property:sys.boot_completed=1
+   start qrngp
+
 service qseecomd /system/bin/qseecomd
    class core
    user root
    group root
-   writepid /dev/cpuset/system-background/tasks
 
 service perfd /system/vendor/bin/perfd
    class main
    user root
-   writepid /dev/cpuset/system-background/tasks
+   disabled
 
 service thermal-engine /system/vendor/bin/thermal-engine
    class main
@@ -84,34 +118,44 @@ service thermal-engine /system/vendor/bin/thermal-engine
    socket thermal-recv-client stream 0660 system system
    socket thermal-recv-passive-client stream 0666 system system
    group root
-   writepid /dev/cpuset/system-background/tasks
 
 service time_daemon /system/bin/time_daemon
    class late_start
    user root
    group root
-   writepid /dev/cpuset/system-background/tasks
 
 service audiod /system/bin/audiod
    class late_start
    user system
    group system
 
+service bat_log /system/bin/bat_log.sh
+   class core
+   user  root
+   group root
+   disabled
+
 on charger
    wait /dev/block/bootdevice/by-name/system
    mount ext4 /dev/block/bootdevice/by-name/system /system ro barrier=1
+   #mount_all fstab.qcom
+   wait /dev/block/bootdevice/by-name/cache
+   mount ext4 /dev/block/bootdevice/by-name/cache /cache nosuid nodev barrier=1
    chown root system /sys/class/power_supply/bms/current_now
    chown root system /sys/class/power_supply/bms/voltage_ocv
    chmod 0664 /sys/class/power_supply/bms/current_now
    chmod 0664 /sys/class/power_supply/bms/voltage_ocv
    start vm_bms
+   start bat_log
+   load_all_props
+   start qcom-post-boot
 
 on boot
-    # VM BMS
-    chown root system /sys/class/power_supply/bms/current_now
-    chown root system /sys/class/power_supply/bms/voltage_ocv
-    chmod 0664 /sys/class/power_supply/bms/current_now
-    chmod 0664 /sys/class/power_supply/bms/voltage_ocv
+    start rmt_storage
+    insmod /system/lib/modules/adsprpc.ko
+
+    # Allow powerHAL to write to sysfs
+    chown system system /sys/bus/i2c/devices/5-0046/enable_wakeup
 
 service wcnss-service /system/bin/wcnss_service
     class main
@@ -119,15 +163,88 @@ service wcnss-service /system/bin/wcnss_service
     group system wifi radio
     oneshot
 
-service ppd /system/bin/mm-pp-daemon
-    class late_start
-    disabled
+#no need this on spi panel, disable it
+#service ppd /system/bin/mm-pp-daemon
+#    class late_start
+#    disabled
+#    user system
+#    socket pps stream 0660 system system
+#    group system graphics
+
+service per_mgr /system/bin/pm-service
+    class core
     user system
-    socket pps stream 0660 system system
-    group system graphics
+    group system net_raw
 
-on property:init.svc.surfaceflinger=stopped
-    stop ppd
+service perffeedbackd /system/vendor/bin/perffeedbackd
+   class main
+   user system
+   group system
+   disabled
 
-on property:init.svc.surfaceflinger=running
-    start ppd
+#on property:init.svc.surfaceflinger=stopped
+#    stop ppd
+
+#on property:init.svc.surfaceflinger=running
+#    start ppd
+
+service imsstarter /system/bin/sh /system/etc/init.qti.ims.sh
+    class main
+    oneshot
+
+on property:vold.decrypt=trigger_restart_framework
+    start imsstarter
+
+service imsqmidaemon /system/bin/imsqmidaemon
+    class main
+    user system
+    socket ims_qmid stream 0660 system radio
+    group radio log qcom_diag
+    disabled
+
+on property:service.qti.ims.enabled=1
+    start imsqmidaemon
+
+service imsdatadaemon /system/bin/imsdatadaemon
+    class main
+    user system
+    socket ims_datad stream 0660 system radio
+    group system wifi radio inet log qcom_diag
+    disabled
+
+on property:sys.ims.QMI_DAEMON_STATUS=1
+    start imsdatadaemon
+
+service ims_rtp_daemon /system/bin/ims_rtp_daemon
+   class main
+   user system
+   socket ims_rtpd stream 0660 system radio
+   group radio diag qcom_diag log
+   disabled
+
+service imscmservice /system/bin/imscmservice
+   class main
+   user system
+   group radio diag qcom_diag log
+   disabled
+
+on property:sys.ims.DATA_DAEMON_STATUS=1
+    start ims_rtp_daemon
+    start imscmservice
+
+service touch /system/bin/sh /system/etc/init.qti.synaptics_dsx_qhd.sh
+   class late_start
+   user root
+   group root
+   oneshot
+   disabled
+service dts_configurator /system/bin/dts_configurator
+   class main
+   user system
+   group system
+   oneshot
+on property:persist.sys.synaptics_dsx.qhd=true
+   start touch
+
+on property:persist.sys.synaptics_dsx.qhd=false
+   stop touch
